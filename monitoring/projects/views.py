@@ -38,10 +38,13 @@ class ProjectAPIView(APIView):
             Si aucun projet n'est trouvé pour l'utilisateur, renvoie une réponse HTTP 204 NO CONTENT
 
         """
+        try:
+            user = request.user
+            project_title = Project.objects.filter(author_user_id=user).values_list('title', flat=True)
+            return Response(project_title, status=status.HTTP_200_OK)
 
-        user = CustomUser.objects.get(id=request.user.id)
-        project_title = Project.objects.filter(author_user_id=user).values_list('title', flat=True)
-        return Response(project_title, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
         """

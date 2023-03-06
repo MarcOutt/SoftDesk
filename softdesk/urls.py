@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from monitoring.contributors.views import ContributorProjectAPIView, DeleteContributorProjectAPIView
 from monitoring.projects.views import ProjectAPIView, ProjectReadUpdateDeleteAPIView
 from rest_framework import permissions
 from user.views import UserCreateAPIView, LoginAPIView
@@ -11,7 +12,7 @@ from user.views import UserCreateAPIView, LoginAPIView
 schema_view = get_schema_view(
     # Le générateur de schéma à utiliser pour générer la documentation Swagger
     info=openapi.Info(
-        title="Mon API",
+        title="SoftDesk API",
         default_version='v1',
         description="Une description de mon API",
     ),
@@ -25,6 +26,9 @@ schema_view = get_schema_view(
         path('login/', LoginAPIView.as_view(), name='login'),
         path('projects/', ProjectAPIView.as_view(), name='project'),
         path('projects/<int:project_id>/', ProjectReadUpdateDeleteAPIView.as_view(), name='rud_project'),
+        path('projects/<int:project_id>/', ContributorProjectAPIView.as_view(), name='contributor'),
+        path('projects/<int:project_id>/users/<int:user_id>', DeleteContributorProjectAPIView.as_view(),
+             name='contributor'),
     ],
 )
 
@@ -38,6 +42,10 @@ urlpatterns = [
     path('projects/', ProjectAPIView.as_view(), name='project'),
 
     path('projects/<int:project_id>/', ProjectReadUpdateDeleteAPIView.as_view(), name='rud_project'),
+
+    path('projects/<int:project_id>/users/', ContributorProjectAPIView.as_view(), name='contributor'),
+    path('projects/<int:project_id>/users/<int:user_id>', DeleteContributorProjectAPIView.as_view(),
+         name='contributor'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
