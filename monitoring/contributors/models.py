@@ -10,7 +10,7 @@ class Contributor(models.Model):
         ('Non', False)
     ]
 
-    user_id = models.ForeignKey(to=CustomUser, on_delete=models.CASCADE, related_name='contributors')
-    project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name='contributors')
+    user = models.ForeignKey(to=CustomUser, on_delete=models.CASCADE, related_name='contributors')
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name='contributors')
     permission = models.CharField(max_length=5, choices=choice)
     role = models.CharField(max_length=128)

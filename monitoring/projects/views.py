@@ -40,7 +40,7 @@ class ProjectAPIView(APIView):
         """
         try:
             user = request.user
-            project_title = Project.objects.filter(author_user_id=user).values_list('title', flat=True)
+            project_title = Project.objects.filter(author_user=user).values_list('title', flat=True)
             return Response(project_title, status=status.HTTP_200_OK)
 
         except Project.DoesNotExist:
@@ -64,7 +64,7 @@ class ProjectAPIView(APIView):
             sont invalides, renvoie une réponse HTTP 400 BAD REQUEST avec un message d'erreur.
 
         """
-
+        print(request.user)
         serializer = ProjectSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -108,7 +108,7 @@ class ProjectReadUpdateDeleteAPIView(APIView):
         """
 
         try:
-            project = Project.objects.get(project_id=project_id)
+            project = Project.objects.get(project=project_id)
             serializer = ProjectSerializer(project)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -137,7 +137,7 @@ class ProjectReadUpdateDeleteAPIView(APIView):
         """
 
         try:
-            project = Project.objects.get(project_id=project_id)
+            project = Project.objects.get(project=project_id)
         except Project.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -165,7 +165,7 @@ class ProjectReadUpdateDeleteAPIView(APIView):
         """
 
         try:
-            project = Project.objects.get(project_id=project_id)
+            project = Project.objects.get(project=project_id)
             project.delete()
             return Response(content_type={"message": "Le projet a été supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
         except Project.DoesNotExist:

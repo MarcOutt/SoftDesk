@@ -11,7 +11,7 @@ class Project(models.Model):
         ('Android', 'Android')
     ]
 
-    project_id = models.AutoField(primary_key=True)
+    project = models.AutoField(primary_key=True)
     title = models.CharField(max_length=128)
     description = models.CharField(max_length=1000)
     type = models.CharField(max_length=300, choices=choice_type)

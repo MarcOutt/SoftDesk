@@ -33,6 +33,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             Project: L'objet Project créé.
 
         """
+
         return Project.objects.create(title=validated_data['title'],
                                       description=validated_data['description'],
                                       type=validated_data['type'],

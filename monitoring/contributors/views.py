@@ -17,7 +17,7 @@ class ContributorProjectAPIView(APIView):
     def get(self, request, project_id):
 
         try:
-            contributors = Contributor.objects.filter(project_id=project_id)
+            contributors = Contributor.objects.filter(project=project_id)
             contributor_last_names = [contributor.user_id.last_name for contributor in contributors]
             return Response(contributor_last_names, status=status.HTTP_200_OK)
         except Contributor.DoesNotExist:

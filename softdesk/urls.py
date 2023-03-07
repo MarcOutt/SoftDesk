@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
+from monitoring.Issues.views import IssueProjectAPIView, IssueUpdateDeleteAPIView
 from monitoring.contributors.views import ContributorProjectAPIView, DeleteContributorProjectAPIView
 from monitoring.projects.views import ProjectAPIView, ProjectReadUpdateDeleteAPIView
 from rest_framework import permissions
@@ -45,7 +46,10 @@ urlpatterns = [
 
     path('projects/<int:project_id>/users/', ContributorProjectAPIView.as_view(), name='contributor'),
     path('projects/<int:project_id>/users/<int:user_id>', DeleteContributorProjectAPIView.as_view(),
-         name='contributor'),
+         name='delete_contributor'),
+
+    path('projects/<int:project_id>/issues/', IssueProjectAPIView.as_view(), name='issue'),
+    path('projects/<int:project_id>/issues/<int:issue_id>/', IssueUpdateDeleteAPIView.as_view(), name='ud_issue'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
