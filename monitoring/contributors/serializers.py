@@ -15,5 +15,5 @@ class ContributorSerializer(serializers.ModelSerializer):
                                           role=validated_data['role'])
 
     def validate_project_id(self):
-        project_id = self.context['request'].parser_context['kwargs']['project']
-        return Project.objects.get(pk=project_id)
+        project_id = self.context['request'].parser_context['kwargs']['project_id']
+        return Project.objects.get(project=project_id)

@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from monitoring.Issues.views import IssueProjectAPIView, IssueUpdateDeleteAPIView
@@ -8,6 +8,7 @@ from monitoring.comments.views import CommentIssueAPIView, CommentReadUpdateDele
 from monitoring.contributors.views import ContributorProjectAPIView, DeleteContributorProjectAPIView
 from monitoring.projects.views import ProjectAPIView, ProjectReadUpdateDeleteAPIView
 from rest_framework import permissions
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from user.views import UserCreateAPIView, LoginAPIView
 
 
@@ -31,6 +32,12 @@ schema_view = get_schema_view(
         path('projects/<int:project_id>/', ContributorProjectAPIView.as_view(), name='contributor'),
         path('projects/<int:project_id>/users/<int:user_id>', DeleteContributorProjectAPIView.as_view(),
              name='contributor'),
+        path('projects/<int:project_id>/issues/', IssueProjectAPIView.as_view(), name='issue'),
+        path('projects/<int:project_id>/issues/<int:issue_id>/', IssueUpdateDeleteAPIView.as_view(), name='ud_issue'),
+        path('projects/<int:project_id>/issues/<int:issue_id>/comments/', CommentIssueAPIView.as_view(),
+             name='ud_issue'),
+        path('projects/<int:project_id>/issues/<int:issue_id>/comments/<int:comment_id>/',
+             CommentReadUpdateDeleteAPIView.as_view(), name='ud_issue'),
     ],
 )
 
@@ -39,7 +46,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('signup/', UserCreateAPIView.as_view(), name='signup'),
-    path('login/', LoginAPIView.as_view(), name='login'),
+    path('lo/', LoginAPIView.as_view(), name='login'),
 
     path('projects/', ProjectAPIView.as_view(), name='project'),
 
@@ -55,6 +62,10 @@ urlpatterns = [
     path('projects/<int:project_id>/issues/<int:issue_id>/comments/', CommentIssueAPIView.as_view(), name='ud_issue'),
     path('projects/<int:project_id>/issues/<int:issue_id>/comments/<int:comment_id>/',
          CommentReadUpdateDeleteAPIView.as_view(), name='ud_issue'),
+
+    path('api-auth/', include('rest_framework.urls')),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh', TokenRefreshView.as_view(), name='refresh_token'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
