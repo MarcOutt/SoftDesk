@@ -36,8 +36,6 @@ class DeleteContributorProjectAPIView(APIView):
     def delete(self, request, project_id, user_id):
         try:
             project = Project.objects.get(project=project_id)
-            print(request.user)
-            print(project.author_user)
             if project.author_user != request.user:
                 return Response({"message": "Vous n'êtes pas l'auteur du projet."}, status=status.HTTP_401_UNAUTHORIZED)
             contributor = Contributor.objects.get(project_id=project_id, user_id=user_id)
