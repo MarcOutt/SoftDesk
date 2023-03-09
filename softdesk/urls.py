@@ -26,7 +26,7 @@ schema_view = get_schema_view(
     # Optionnel : les URL des vues à inclure dans la documentation Swagger
     patterns=[
         path('signup/', UserCreateAPIView.as_view(), name='signup'),
-        path('login/', LoginAPIView.as_view(), name='login'),
+        path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
         path('projects/', ProjectAPIView.as_view(), name='project'),
         path('projects/<int:project_id>/', ProjectReadUpdateDeleteAPIView.as_view(), name='rud_project'),
         path('projects/<int:project_id>/', ContributorProjectAPIView.as_view(), name='contributor'),
@@ -44,9 +44,12 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
+
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh', TokenRefreshView.as_view(), name='refresh_token'),
 
     path('signup/', UserCreateAPIView.as_view(), name='signup'),
-    path('lo/', LoginAPIView.as_view(), name='login'),
 
     path('projects/', ProjectAPIView.as_view(), name='project'),
 
@@ -62,10 +65,6 @@ urlpatterns = [
     path('projects/<int:project_id>/issues/<int:issue_id>/comments/', CommentIssueAPIView.as_view(), name='ud_issue'),
     path('projects/<int:project_id>/issues/<int:issue_id>/comments/<int:comment_id>/',
          CommentReadUpdateDeleteAPIView.as_view(), name='ud_issue'),
-
-    path('api-auth/', include('rest_framework.urls')),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh', TokenRefreshView.as_view(), name='refresh_token'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

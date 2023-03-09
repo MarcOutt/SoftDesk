@@ -1,5 +1,6 @@
 from monitoring.projects.models import Project
 from rest_framework import serializers
+from user.models import CustomUser
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -17,7 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('title', 'description', 'type', 'author_user')
+        fields = ('title', 'description', 'type')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -37,4 +38,20 @@ class ProjectSerializer(serializers.ModelSerializer):
         return Project.objects.create(title=validated_data['title'],
                                       description=validated_data['description'],
                                       type=validated_data['type'],
-                                      author_user=validated_data['author_user'])
+                                      author_user=self.validate_author_user_id())
+
+    def validate_author_user_id(self):
+        """
+        Valide l'ID du projet.
+
+        Valide et renvoie l'objet Project correspondant à l'ID du projet fourni dans le contexte de la requête.
+
+        Returns:
+            Project: L'objet Project correspondant à l'ID du projet fourni dans le contexte de la requête.
+
+        Raises:
+            Project.DoesNotExist: Si aucun projet correspondant n'est trouvé.
+
+        """
+        author_user_id = self.context['request'].user.id
+        return CustomUser.objects.get(id=author_user_id)
