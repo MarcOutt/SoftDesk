@@ -12,7 +12,6 @@ class CommentIssueAPIView(APIView):
     APIView pour les opérations de création et de récupération de commentaires liés à un problème spécifié.
 
     Requiert que l'utilisateur soit contributeur du projet associé au problème.
-
     """
 
     permission_classes = [IsContributor]
@@ -32,10 +31,11 @@ class CommentIssueAPIView(APIView):
             issue_id (int): L'ID du problème pour lequel créer un commentaire.
 
         Returns:
-            Response: Les données JSON de l'objet Comment créé et un code d'état HTTP 201 si les données sont valides,
-            sinon les erreurs de validation et un code d'état HTTP 400.
-
+            Si le formulaire est bien rempli, une réponse HTTP 201 Created.
+            Si l'utilisateur n'est pas assigné au problème, une réponse HTTP 401 Unauthorized.
+            Si le formulaire a des erreurs, une réponse HTTP 400 Bad Request.
         """
+
         issue = Issue.objects.get(id=issue_id)
         if issue.assignee_user != request.user:
             return Response({"message": "Vous n'êtes pas assigné(e) pour créer un commentaire sur ce problème."},
@@ -60,9 +60,10 @@ class CommentIssueAPIView(APIView):
             issue_id (int): L'ID du problème pour lequel récupérer les commentaires.
 
         Returns:
-            Response: Les données JSON des objets Comment et un code d'état HTTP 200 si des commentaires existent,
-            sinon un code d'état HTTP 404.
+            Si le commentaire existe, une réponse HTTP 200 Ok.
+            Si le commentaire n'existe pas, une réponse HTTP 404 Not found.
         """
+
         try:
             comments = Comment.objects.filter(issue=issue_id)
             serializer = CommentSerializer(comments, many=True)
@@ -92,10 +93,8 @@ class CommentReadUpdateDeleteAPIView(APIView):
             comment_id: L'ID du commentaire à récupérer.
 
         Returns:
-            Response: La réponse HTTP contenant les détails du commentaire.
-
-        Raises:
-            Comment.DoesNotExist: Si aucun commentaire ne correspond à l'ID spécifié.
+            Si le formulaire est bien rempli, une réponse HTTP 200 Ok.
+            Si le commentaire n'existe pas, une réponse HTTP 404 Not found.
         """
 
         try:
@@ -103,7 +102,7 @@ class CommentReadUpdateDeleteAPIView(APIView):
             serializer = CommentSerializer(comments)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Comment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Il n'y a pas de commentaires."}, status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, project_id, issue_id, comment_id):
         """
@@ -116,11 +115,10 @@ class CommentReadUpdateDeleteAPIView(APIView):
             comment_id: L'ID du commentaire à mettre à jour.
 
         Returns:
-            Response: La réponse HTTP contenant les données mises à jour du commentaire.
-
-        Raises:
-            Comment.DoesNotExist: Si aucun commentaire ne correspond à l'ID spécifié.
-            serializers.ValidationError: Si les données fournies sont invalides.
+            Si le formulaire est bien rempli, une réponse HTTP 200 Ok.
+            Si le contributeur n'est pas l'auteur du commentaire, une réponse HTTP 401 Unauthorized.
+            Si le commentaire n'existe pas, une réponse HTTP 404 Not found.
+            Si le formulaire a des erreurs, une réponse HTTP 400 Bad Request.
         """
 
         try:
@@ -128,12 +126,12 @@ class CommentReadUpdateDeleteAPIView(APIView):
             if comment.author_user != request.user:
                 return Response({"message": "Vous n'êtes pas l'auteur du commentaire."},
                                 status=status.HTTP_401_UNAUTHORIZED)
-        except comment.DoesNotExist:
+        except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, project_id, issue_id, comment_id):
@@ -147,10 +145,9 @@ class CommentReadUpdateDeleteAPIView(APIView):
             comment_id: L'ID du commentaire à supprimer.
 
         Returns:
-            Response: La réponse HTTP indiquant que le commentaire a été supprimé avec succès.
-
-        Raises:
-            Comment.DoesNotExist: Si aucun commentaire ne correspond à l'ID spécifié.
+            Si le formulaire est bien rempli, une réponse HTTP 204 No content.
+            Si le contributeur n'est pas l'auteur du commentaire, une réponse HTTP 401 Unauthorized.
+            Si le commentaire n'existe pas, une réponse HTTP 404 Not found.
         """
 
         try:
@@ -159,7 +156,7 @@ class CommentReadUpdateDeleteAPIView(APIView):
                 return Response({"message": "Vous n'êtes pas l'auteur du commentaire."},
                                 status=status.HTTP_401_UNAUTHORIZED)
             comment.delete()
-            return Response(content_type={"message": "Le commentaire a été supprimé avec succès."},
+            return Response({"message": "Le commentaire a été supprimé avec succès."},
                             status=status.HTTP_204_NO_CONTENT)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

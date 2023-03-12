@@ -1,5 +1,3 @@
-from http.client import HTTPException
-
 from monitoring.contributors.models import Contributor
 from monitoring.permissions import IsContributor
 from monitoring.projects.models import Project
@@ -12,14 +10,13 @@ from rest_framework.views import APIView
 
 class ProjectAPIView(APIView):
     """
-    View pour afficher et créer des projets liés à un utilisateur authentifié.
+    Une API view qui permet d'afficher et créer des projets liés à un utilisateur authentifié.
 
     Permissions (classes) :
         - IsAuthenticated : L'utilisateur doit être authentifié pour accéder à ces vues.
 
     Attributs de classe :
         - permission_classes : Une liste de classes de permissions qui doivent être satisfaites pour accéder aux vues.
-
     """
 
     permission_classes = [IsAuthenticated]
@@ -30,9 +27,12 @@ class ProjectAPIView(APIView):
 
         Returns:
             Response: La réponse HTTP contenant les titres des projets de l'utilisateur.
-        Raises:
-            Project.DoesNotExist: Si aucun projet n'est associé à l'utilisateur connecté.
+
+            Une réponse HTTP 200 OK avec les titres des projets de l'utilisateur créé.
+            Si l'utilisateur n'est pas authentifié, une réponse HTTP 401 Unauthorized.
+            Si le projet n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
         """
+
         user = request.user
         try:
             projects = []
@@ -40,11 +40,11 @@ class ProjectAPIView(APIView):
             projects.extend(contributor.project for contributor in contributors)
             created_projects = Project.objects.filter(author_user=user)
             projects.extend(created_projects)
-            serializer = ProjectSerializer(projects, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            project_titles = [project.title for project in projects]
+            return Response(project_titles, status=status.HTTP_200_OK)
 
         except Project.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Le projet n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
         """
@@ -53,9 +53,8 @@ class ProjectAPIView(APIView):
         Args:
             request: L'objet HttpRequest.
         Returns:
-            Response: La réponse HTTP contenant les données du nouveau projet créé.
-        Raises:
-            serializers.ValidationError: Si les données fournies sont invalides.
+            Une réponse HTTP 200 OK avec le projet créé ou une réponse HTTP 400 Bad Request.
+            Si l'utilisateur n'est pas authentifié, une réponse HTTP 401 Unauthorized.
         """
         serializer = ProjectSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -70,58 +69,55 @@ class ProjectReadUpdateDeleteAPIView(APIView):
 
     def get(self, request, project_id):
         """
-            Récupère les détails du projet avec l'ID spécifié
+        Récupère les détails du projet avec l'ID spécifié
 
-            Args:
-                request: L'objet HttpRequest.
-                project_id: L'ID du projet à récupérer.
+        Args:
+            request: L'objet HttpRequest.
+            project_id: L'ID du projet à récupérer.
 
-            Returns:
-                Response: La réponse HTTP contenant les détails du projet.
-
-            Raises:
-                Project.DoesNotExist: Si aucun projet ne correspond à l'ID spécifié.
-                HTTPException: Si l'utilisateur n'est pas autorisé à accéder à ce projet.
+        Returns:
+            Une réponse HTTP 200 OK avec les détails du projet
+            Si l'utilisateur n'est pas l'auteur du projet, une réponse HTTP 401 Unauthorized
+            Si le projet n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
         """
 
         try:
             project = Project.objects.get(project=project_id)
             if project.author_user != request.user:
-                return Response({"message": "Vous ne faites pas parti du projet ."}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"message": "Vous ne faites pas parti(e) du projet ."},
+                                status=status.HTTP_401_UNAUTHORIZED)
             serializer = ProjectSerializer(project)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Le projet n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, project_id):
         """
         Met à jour le projet avec l'ID spécifié
 
-        Args:
+        Args :
             request: L'objet HttpRequest.
             project_id: L'ID du projet à mettre à jour.
 
         Returns:
-            Response: La réponse HTTP contenant les données mises à jour du projet.
-
-        Raises:
-            Project.DoesNotExist: Si aucun projet ne correspond à l'ID spécifié.
-            HTTPException: Si l'utilisateur n'est pas autorisé à mettre à jour ce projet.
-            serializers.ValidationError: Si les données fournies sont invalides.
-
+            Une réponse HTTP 200 OK avec les données mises à jour en cas de succès ou une réponse HTTP 400 Bad Request
+            avec les erreurs de validation en cas d'échec.
+            Si l'utilisateur n'est pas l'auteur du projet, une réponse HTTP 401 Unauthorized
+            Si le projet n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
         """
+
         try:
             project = Project.objects.get(project=project_id)
             if project.author_user != request.user:
                 return Response({"message": "Vous n'êtes pas l'auteur du projet."},
                                 status=status.HTTP_401_UNAUTHORIZED)
         except Project.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Le projet n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ProjectSerializer(project, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, project_id):
@@ -133,9 +129,9 @@ class ProjectReadUpdateDeleteAPIView(APIView):
             project_id: L'ID du projet à supprimer.
 
         Returns:
-            Response: La réponse HTTP indiquant que le projet a été supprimé.
-                      Si le projet n'est pas l'auteur du problème, une réponse HTTP 401 Unauthorized
-                      Si le projet n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
+            Une réponse HTTP 204 no content indiquant que le projet a été supprimé.
+            Si l'utilisateur n'est pas l'auteur du projet, une réponse HTTP 401 Unauthorized
+            Si le projet n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
         """
 
         try:
@@ -146,4 +142,4 @@ class ProjectReadUpdateDeleteAPIView(APIView):
             project.delete()
             return Response({"message": "Le projet a été supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
         except Project.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Le projet n'existe pas."}, status=status.HTTP_404_NOT_FOUND)

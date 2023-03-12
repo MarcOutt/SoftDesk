@@ -13,7 +13,6 @@ class ContributorSerializer(serializers.ModelSerializer):
         user (int): L'ID de l'utilisateur qui contribue au projet.
         permission (str): Les permissions accordées à l'utilisateur.
         role (str): Le rôle de l'utilisateur dans le projet.
-
     """
 
     class Meta:

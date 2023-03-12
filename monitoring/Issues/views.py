@@ -1,5 +1,3 @@
-from http.client import HTTPException
-
 from monitoring.Issues.models import Issue
 from monitoring.Issues.serializers import IssueSerializer
 from monitoring.permissions import IsContributor
@@ -10,11 +8,13 @@ from rest_framework.views import APIView
 
 class IssueProjectAPIView(APIView):
     """
-    Vue API pour les `Issue` associées à un projet spécifique.
+    API view pour créer et de consulter des problèmes à un projet spécifique.
+
+    Les utilisateurs qui ne sont pas contributeurs ne peuvent pas effectuer les actions dans cette vue.
 
     Attributes:
         permission_classes (list): Liste de classes de permission qui spécifient les permissions
-            requises pour accéder à cette vue.
+                                   requises pour accéder à cette vue.
     """
 
     permission_classes = [IsContributor]
@@ -28,8 +28,8 @@ class IssueProjectAPIView(APIView):
             project_id (int): L'ID du projet associé à l'Issue.
 
         Returns:
-            Response: La réponse HTTP contenant les données de l'Issue créée,
-                ou une réponse d'erreur si les données fournies ne sont pas valides.
+            Si le problème est créé avec succès une réponse HTTP 201 Created.
+            Si des erreurs dans le formulaire une réponse HTTP 404 Bad Request
         """
         serializer = IssueSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -39,16 +39,16 @@ class IssueProjectAPIView(APIView):
 
     def get(self, request, project_id):
         """
-        Récupère toutes les instances de `Issue` associées au projet spécifié.
+        Récupère toutes les instances d'Issue associées au projet spécifié.
 
         Args:
             request (HttpRequest): L'objet de requête HTTP.
             project_id (int): L'ID du projet associé aux 'Issue'.
 
         Returns:
-            Response: La réponse HTTP contenant les données de toutes les `Issue` associées
-                au projet spécifié, ou une réponse d'erreur si aucun `Issue` n'a été trouvé
-                pour ce projet.
+            Si le problème existe une réponse HTTP 200 OK.
+            Si le contributeur n'est pas l'auteur du problème, une réponse HTTP 401 Unauthorized.
+            Si le problème n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
         """
         try:
             issues = Issue.objects.filter(project=project_id)
@@ -61,7 +61,13 @@ class IssueProjectAPIView(APIView):
 class IssueUpdateDeleteAPIView(APIView):
     """
     Une API view qui permet à un contributeur de mettre à jour et supprimer un problème pour un projet spécifié.
+
+    Les utilisateurs qui ne sont pas contributeurs ne peuvent pas effectuer les actions dans cette vue.
+
+    Attributes:
+        permission_classes (list): Les classes de permissions pour les utilisateurs qui effectuent les actions.
     """
+
     permission_classes = [IsContributor]
 
     def put(self, request, project_id, issue_id):
@@ -87,7 +93,7 @@ class IssueUpdateDeleteAPIView(APIView):
                 return Response({"message": "Vous n'êtes pas l'auteur du problème."},
                                 status=status.HTTP_401_UNAUTHORIZED)
         except Issue.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Le problème n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = IssueSerializer(issue, data=request.data)
         if serializer.is_valid():
@@ -106,12 +112,9 @@ class IssueUpdateDeleteAPIView(APIView):
             issue_id: L'identifiant du problème à supprimer.
 
         Returns:
-            Une réponse HTTP 204 No Content si le problème est supprimé avec succès ou une réponse HTTP 401 Unauthorized
-            si le contributeur n'est pas l'auteur du problème.
+            Si le problème est supprimé avec succès une réponse HTTP 204 No Content.
+            Si le contributeur n'est pas l'auteur du problème, une réponse HTTP 401 Unauthorized.
             Si le problème n'existe pas, une réponse HTTP 404 Not Found est renvoyée.
-
-        Raises:
-            HTTPException: Si le contributeur n'est pas l'auteur du problème
         """
         try:
             issue = Issue.objects.get(project=project_id, id=issue_id)

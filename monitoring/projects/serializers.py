@@ -4,7 +4,8 @@ from user.models import CustomUser
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    """Serializer pour la classe Project.
+    """
+    Serializer pour la classe Project.
 
     Convertit les objets Project en données JSON et vice versa.
 
@@ -13,7 +14,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         description (str): La description du projet.
         type (str): Le type du projet.
         author_user (int): L'ID de l'utilisateur qui a créé le projet.
-
     """
 
     class Meta:
@@ -22,13 +22,14 @@ class ProjectSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        """Crée un nouvel objet Project.
+        """
+        Crée un nouvel objet Project.
 
         Crée un nouvel objet Project avec les données validées fournies.
         Renvoie l'objet Project créé.
 
         Args:
-            validated_data (dict): Les données validées pour créer un nouvel objet Project.
+            validated_data (dict) : Les données validées pour créer un nouvel objet Project.
 
         Returns:
             Project: L'objet Project créé.
