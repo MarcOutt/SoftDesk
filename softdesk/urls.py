@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
@@ -9,8 +8,7 @@ from monitoring.contributors.views import ContributorProjectAPIView, DeleteContr
 from monitoring.projects.views import ProjectAPIView, ProjectReadUpdateDeleteAPIView
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from user.views import UserCreateAPIView, LoginAPIView
-
+from user.views import UserCreateAPIView
 
 schema_view = get_schema_view(
     # Le générateur de schéma à utiliser pour générer la documentation Swagger
@@ -40,7 +38,6 @@ schema_view = get_schema_view(
              CommentReadUpdateDeleteAPIView.as_view(), name='ud_issue'),
     ],
 )
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),

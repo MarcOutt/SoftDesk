@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login
-from user.serializers import UserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from user.serializers import UserSerializer
 
 
 class UserCreateAPIView(APIView):

@@ -4,7 +4,6 @@ from user.models import CustomUser
 
 
 class Contributor(models.Model):
-
     choice = [
         ('Oui', True),
         ('Non', False)

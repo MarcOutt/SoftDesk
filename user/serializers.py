@@ -1,5 +1,5 @@
-from user.models import CustomUser
 from rest_framework import serializers
+from user.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,7 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
         last_name (str): Le nom de famille de l'utilisateur.
         email (str): The user's email.
         password (str): Le mot de passe de l'utilisateur. Cet attribut est write-only.
-
     """
 
     class Meta:

@@ -4,7 +4,6 @@ from user.models import CustomUser
 
 
 class Issue(models.Model):
-
     choice_priority = [
         ('HIGHT', 'ELEVEE'),
         ('MEDIUM', 'MOYENNE'),

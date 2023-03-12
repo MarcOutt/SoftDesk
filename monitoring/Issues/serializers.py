@@ -1,4 +1,3 @@
-
 from monitoring.Issues.models import Issue
 from monitoring.projects.models import Project
 from rest_framework import serializers

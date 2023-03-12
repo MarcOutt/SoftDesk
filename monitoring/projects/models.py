@@ -3,7 +3,6 @@ from user.models import CustomUser
 
 
 class Project(models.Model):
-
     choice_type = [
         ('back-end', 'back-end'),
         ('front-end', 'front-end'),
