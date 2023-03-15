@@ -15,7 +15,7 @@ class IssueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ('title', 'desc', 'tag', 'priority', 'status',
+        fields = ('id', 'title', 'desc', 'tag', 'priority', 'status',
                   'assignee_user')
 
     def create(self, validated_data):

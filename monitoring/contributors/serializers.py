@@ -17,7 +17,7 @@ class ContributorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contributor
-        fields = ('user', 'permission', 'role')
+        fields = ('id', 'user', 'permission', 'role')
 
     def create(self, validated_data):
         """

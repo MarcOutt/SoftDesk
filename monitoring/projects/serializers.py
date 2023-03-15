@@ -18,7 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('title', 'description', 'type')
+        fields = ('project', 'title', 'description', 'type')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

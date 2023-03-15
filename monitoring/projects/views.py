@@ -1,3 +1,4 @@
+
 from monitoring.contributors.models import Contributor
 from monitoring.permissions import IsContributor
 from monitoring.projects.models import Project
@@ -81,12 +82,14 @@ class ProjectReadUpdateDeleteAPIView(APIView):
         """
 
         try:
+            user = request.user
             project = Project.objects.get(project=project_id)
-            if project.author_user != request.user:
-                return Response({"message": "Vous ne faites pas parti(e) du projet ."},
-                                status=status.HTTP_401_UNAUTHORIZED)
-            serializer = ProjectSerializer(project)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            if project.author_user == request.user or Contributor.objects.filter(user=user):
+                serializer = ProjectSerializer(project)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"message": "Vous ne faites pas parti(e) du projet ."},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
         except Project.DoesNotExist:
             return Response({"message": "Le projet n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
 
