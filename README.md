@@ -23,6 +23,7 @@ de leurs priorités, de balises, etc.
 Les trois applications exploiteront les points de terminaison d'API qui serviront les données.
 
 ## Principales fonctionnalités de l'application :
+----------------
 
 * Authentification des utilisateurs (inscription/connexion)
 * Concernant les objets de type projet, les utilisateurs doivent avoir accès aux actions basiques de type CRUD (de
