@@ -5,10 +5,12 @@
 ## TABLE DES MATIERES
 ---------------------
 
-* Introduction
-* Installation
-* Utilisation
-* Rapport Flake8
+* [Introduction](#introduction)
+* [Fonctionnalités principales de l'application](#fonctionnalités-principales-de-lapplication)
+* [Installation](#installation)
+* [Utilisation](#utilisation)
+* [Endpoints de l'API](#endpoints-de-lapi)
+* [Rapport Flake8](#rapport-flake8)
 
 ## INTRODUCTION
 ----------------
@@ -20,7 +22,7 @@ projets spécifiques, de créer des problèmes au sein des projets et d'attribue
 de leurs priorités, de balises, etc.
 Les trois applications exploiteront les points de terminaison d'API qui serviront les données.
 
-Principales fonctionnalités de l'application :
+## Principales fonctionnalités de l'application :
 
 * Authentification des utilisateurs (inscription/connexion)
 * Concernant les objets de type projet, les utilisateurs doivent avoir accès aux actions basiques de type CRUD (de
