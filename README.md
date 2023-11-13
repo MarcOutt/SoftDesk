@@ -5,7 +5,7 @@
 
 
 
-# Créer une API sécurisée RESTFUL en utilisant Django REST / OC_p10
+# SoftDesk - API sécurisée RESTFUL en utilisant Django REST
 ---------------------------------------------------------------
 
 
